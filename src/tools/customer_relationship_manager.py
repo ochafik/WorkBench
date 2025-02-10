@@ -13,7 +13,7 @@ def reset_state():
     CRM_DATA = pd.read_csv("data/processed/customer_relationship_manager_data.csv", dtype=str)
 
 
-@tool("customer_relationship_manager.search_customers", return_direct=False)
+@tool("customer_relationship_manager.search_customers", return_direct=False, parse_docstring=True)
 def search_customers(
     customer_name: Optional[str] = None,
     customer_email: Optional[str] = None,
@@ -98,7 +98,7 @@ def search_customers(
     return customers.to_dict(orient="records")[:5]
 
 
-@tool("customer_relationship_manager.update_customer", return_direct=False)
+@tool("customer_relationship_manager.update_customer", return_direct=False, parse_docstring=True)
 def update_customer(
     customer_id: Optional[str] = None,
     field: Optional[str] = None,
@@ -150,7 +150,7 @@ def update_customer(
         return "Customer not found."
 
 
-@tool("customer_relationship_manager.add_customer", return_direct=False)
+@tool("customer_relationship_manager.add_customer", return_direct=False, parse_docstring=True)
 def add_customer(
     customer_name: Optional[str] = None,
     assigned_to_email: Optional[str] = None,
@@ -223,7 +223,7 @@ def add_customer(
     return new_id
 
 
-@tool("customer_relationship_manager.delete_customer", return_direct=False)
+@tool("customer_relationship_manager.delete_customer", return_direct=False, parse_docstring=True)
 def delete_customer(customer_id: Optional[str] = None) -> str:
     """
     Deletes a customer record by ID.

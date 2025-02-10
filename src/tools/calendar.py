@@ -15,7 +15,7 @@ def reset_state():
     CALENDAR_EVENTS = pd.read_csv("data/processed/calendar_events.csv", dtype=str)
 
 
-@tool("calendar.get_event_information_by_id", return_direct=False)
+@tool("calendar.get_event_information_by_id", return_direct=False, parse_docstring=True)
 def get_event_information_by_id(
     event_id: Optional[str] = None,
     field: Optional[str] = None
@@ -62,7 +62,7 @@ def get_event_information_by_id(
         return "Event not found."
 
 
-@tool("calendar.search_events", return_direct=False)
+@tool("calendar.search_events", return_direct=False, parse_docstring=True)
 def search_events(
     query: str = "",
     time_min: Optional[str] = None,
@@ -106,7 +106,7 @@ def search_events(
         return "No events found."
 
 
-@tool("calendar.create_event", return_direct=False)
+@tool("calendar.create_event", return_direct=False, parse_docstring=True)
 def create_event(
     event_name: Optional[str] = None,
     participant_email: Optional[str] = None,
@@ -165,7 +165,7 @@ def create_event(
     return event_id
 
 
-@tool("calendar.delete_event", return_direct=False)
+@tool("calendar.delete_event", return_direct=False, parse_docstring=True)
 def delete_event(event_id: Optional[str] = None) -> str:
     """
     Deletes an event.
@@ -198,7 +198,7 @@ def delete_event(event_id: Optional[str] = None) -> str:
         return "Event not found."
 
 
-@tool("calendar.update_event", return_direct=False)
+@tool("calendar.update_event", return_direct=False, parse_docstring=True)
 def update_event(
     event_id: Optional[str] = None,
     field: Optional[str] = None,

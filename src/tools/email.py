@@ -17,7 +17,7 @@ def reset_state():
     EMAILS = pd.read_csv("data/processed/emails.csv", dtype=str)
 
 
-@tool("email.get_email_information_by_id", return_direct=False)
+@tool("email.get_email_information_by_id", return_direct=False, parse_docstring=True)
 def get_email_information_by_id(
     email_id: Optional[str] = None,
     field: Optional[str] = None
@@ -59,7 +59,7 @@ def get_email_information_by_id(
         return "Email not found."
 
 
-@tool("email.search_emails", return_direct=False)
+@tool("email.search_emails", return_direct=False, parse_docstring=True)
 def search_emails(
     query: str = "",
     date_min: Optional[str] = None,
@@ -114,7 +114,7 @@ def search_emails(
         return "No emails found."
 
 
-@tool("email.send_email", return_direct=False)
+@tool("email.send_email", return_direct=False, parse_docstring=True)
 def send_email(
     recipient: Optional[str] = None,
     subject: Optional[str] = None,
@@ -163,7 +163,7 @@ def send_email(
     return "Email sent successfully."
 
 
-@tool("email.delete_email", return_direct=False)
+@tool("email.delete_email", return_direct=False, parse_docstring=True)
 def delete_email(email_id: Optional[str] = None) -> str:
     """
     Deletes an email by its ID.
@@ -195,7 +195,7 @@ def delete_email(email_id: Optional[str] = None) -> str:
         return "Email not found."
 
 
-@tool("email.forward_email", return_direct=False)
+@tool("email.forward_email", return_direct=False, parse_docstring=True)
 def forward_email(
     email_id: Optional[str] = None,
     recipient: Optional[str] = None
@@ -233,7 +233,7 @@ def forward_email(
     return "Email forwarded successfully." if result == "Email sent successfully." else result
 
 
-@tool("email.reply_email", return_direct=False)
+@tool("email.reply_email", return_direct=False, parse_docstring=True)
 def reply_email(
     email_id: Optional[str] = None,
     body: Optional[str] = None

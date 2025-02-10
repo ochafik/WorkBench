@@ -15,7 +15,7 @@ def reset_state():
     PROJECT_TASKS = pd.read_csv("data/processed/project_tasks.csv", dtype=str)
 
 
-@tool("project_management.get_task_information_by_id", return_direct=False)
+@tool("project_management.get_task_information_by_id", return_direct=False, parse_docstring=True)
 def get_task_information_by_id(
     task_id: Optional[str] = None,
     field: Optional[str] = None
@@ -54,7 +54,7 @@ def get_task_information_by_id(
         return "Task not found."
 
 
-@tool("project_management.search_tasks", return_direct=False)
+@tool("project_management.search_tasks", return_direct=False, parse_docstring=True)
 def search_tasks(
     task_name: Optional[str] = None,
     assigned_to_email: Optional[str] = None,
@@ -104,7 +104,7 @@ def search_tasks(
     return tasks.to_dict(orient="records")
 
 
-@tool("project_management.create_task", return_direct=False)
+@tool("project_management.create_task", return_direct=False, parse_docstring=True)
 def create_task(
     task_name: Optional[str] = None,
     assigned_to_email: Optional[str] = None,
@@ -166,7 +166,7 @@ def create_task(
     return task_id
 
 
-@tool("project_management.delete_task", return_direct=False)
+@tool("project_management.delete_task", return_direct=False, parse_docstring=True)
 def delete_task(task_id: Optional[str] = None) -> str:
     """
     Deletes a task by ID.
@@ -198,7 +198,7 @@ def delete_task(task_id: Optional[str] = None) -> str:
         return "Task not found."
 
 
-@tool("project_management.update_task", return_direct=False)
+@tool("project_management.update_task", return_direct=False, parse_docstring=True)
 def update_task(
     task_id: Optional[str] = None,
     field: Optional[str] = None,

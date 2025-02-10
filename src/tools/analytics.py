@@ -20,7 +20,7 @@ def reset_state():
     PLOTS_DATA = pd.DataFrame(columns=["file_path"])
 
 
-@tool("analytics.get_visitor_information_by_id", return_direct=False)
+@tool("analytics.get_visitor_information_by_id", return_direct=False, parse_docstring=True)
 def get_visitor_information_by_id(visitor_id: Optional[str] = None) -> Union[str, List[Dict[str, str]]]:
     """
     Returns the analytics data for a given visitor ID.
@@ -50,7 +50,7 @@ def get_visitor_information_by_id(visitor_id: Optional[str] = None) -> Union[str
         return "Visitor not found."
 
 
-@tool("analytics.create_plot", return_direct=False)
+@tool("analytics.create_plot", return_direct=False, parse_docstring=True)
 def create_plot(
     time_min: Optional[str] = None,
     time_max: Optional[str] = None,
@@ -106,7 +106,7 @@ def create_plot(
     return file_path
 
 
-@tool("analytics.total_visits_count", return_direct=False)
+@tool("analytics.total_visits_count", return_direct=False, parse_docstring=True)
 def total_visits_count(
     time_min: Optional[str] = None,
     time_max: Optional[str] = None
@@ -140,7 +140,7 @@ def total_visits_count(
     return data.groupby("date_of_visit").size().to_dict()
 
 
-@tool("analytics.engaged_users_count", return_direct=False)
+@tool("analytics.engaged_users_count", return_direct=False, parse_docstring=True)
 def engaged_users_count(
     time_min: Optional[str] = None,
     time_max: Optional[str] = None
@@ -176,7 +176,7 @@ def engaged_users_count(
     return data.groupby("date_of_visit").sum()["user_engaged"].to_dict()
 
 
-@tool("analytics.traffic_source_count", return_direct=False)
+@tool("analytics.traffic_source_count", return_direct=False, parse_docstring=True)
 def traffic_source_count(
     time_min: Optional[str] = None,
     time_max: Optional[str] = None,
@@ -218,7 +218,7 @@ def traffic_source_count(
         return data.groupby("date_of_visit").size().to_dict()
 
 
-@tool("analytics.get_average_session_duration", return_direct=False)
+@tool("analytics.get_average_session_duration", return_direct=False, parse_docstring=True)
 def get_average_session_duration(
     time_min: Optional[str] = None,
     time_max: Optional[str] = None
