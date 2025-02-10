@@ -1,13 +1,20 @@
 import re
 import os
+import subprocess
+import time
 import pandas as pd
 import random
 import ast
-from langchain_openai import ChatOpenAI, OpenAI
+from langchain import hub
+from langchain.agents import create_openai_tools_agent, create_structured_chat_agent, AgentExecutor
+from langchain_core.prompts.chat import ChatPromptTemplate
+from langchain_community.chat_models.openai import ChatOpenAI
 from langchain_community.chat_models.anthropic import ChatAnthropic
 from langchain_community.chat_models.anyscale import ChatAnyscale
 from langchain.agents import initialize_agent, AgentType
 import csv
+
+import requests
 from src.tools import calendar, email, analytics, project_management, customer_relationship_manager, company_directory
 from src.data_generation.data_generation_utils import HARDCODED_CURRENT_TIME
 from src.tools.toolkits import (
@@ -23,11 +30,12 @@ from src.tools.toolkits import (
 
 DOMAINS = [calendar, email, analytics, project_management, customer_relationship_manager]
 AVAILABLE_LLMS = [
-    "gpt-4",
-    "gpt-3.5",
-    "claude-2",
-    "llama2-70b",
-    "mistral-8x7B",
+    "llama.cpp:bartowski/Qwen2.5-7B-Instruct-GGUF",
+    # "gpt-4",
+    # "gpt-3.5",
+    # "claude-2",
+    # "llama2-70b",
+    # "mistral-8x7B",
 ]
 
 
@@ -633,6 +641,9 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
     queries = queries_df["query"].tolist()
 
     results = pd.DataFrame(columns=["query", "function_calls", "full_response", "error"])
+    
+    child_process = None
+    
     if model_name == "gpt-3.5":
         OPENAI_KEY = open("openai_key.txt", "r").read()
         llm = OpenAI(
@@ -670,6 +681,41 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
             anyscale_api_key=ANYSCALE_KEY,
             temperature=0,
         )
+    elif model_name.startswith("llama.cpp:"):
+        hf_repo_id = model_name[model_name.index(":")+1:]
+        llama_server_port = 8080
+        llama_server_base_url = f"http://localhost:{llama_server_port}"
+        
+        cmd = [
+            os.environ.get('LLAMA_SERVER', 'llama-server'),
+            "-hf", hf_repo_id,
+            "--temp", "0",
+            "--jinja",
+            "-fa",
+            "--port", str(llama_server_port),
+            *(['--verbose'] if os.environ.get('DEBUG', '1') == 1 else []),
+        ]
+        print(f"Starting Llama server with command: {' '.join(cmd)}")
+        child_process = subprocess.Popen(cmd, shell=False)
+        import atexit
+        atexit.register(lambda: child_process.terminate())
+        llm = ChatOpenAI(
+            model_name=hf_repo_id,
+            base_url=f"{llama_server_base_url}/v1",
+            temperature=0,
+            model_kwargs={"seed": 42},
+            streaming=False,
+        )
+        for retries_left in range(30, 0, -1):
+            try:
+                if requests.get(f"{llama_server_base_url}/health").status_code == 200:
+                    print("Llama server started successfully.")
+                    break
+                if retries_left == 0:
+                    raise ValueError("Failed to start the Llama server.")
+            except Exception as e:
+                print(f"Failed to connect to the Llama server ({e}). Retrying {retries_left} more times.")
+            time.sleep(1)
 
     else:
         raise ValueError("Invalid --model_name. Must be one of " + ", ".join(AVAILABLE_LLMS))
@@ -681,24 +727,48 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
             toolkits = queries_df["domains"].iloc[i].strip("][").replace("'", "").split(", ")
             tools = get_toolkits(toolkits)
 
-        agent = initialize_agent(
+        # agent = create_structured_chat_agent(
+        #     llm=llm,
+        #     tools=tools,
+        #     verbose=True,
+        #     return_intermediate_steps=True,
+        #     max_iterations=20,
+        #     max_execution_time=120,
+        # )
+        from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", "You are a helpful assistant"),
+                MessagesPlaceholder("chat_history", optional=True),
+                ("human", "{input}"),
+                MessagesPlaceholder("agent_scratchpad"),
+            ]
+        )
+        # prompt = hub.pull("hwchase17/openai-tools-agent")
+        agent = create_openai_tools_agent(
             llm=llm,
-            agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
             tools=tools,
-            verbose=True,
+            prompt=prompt,
+            # verbose=True,
+        )
+        agent_executor = AgentExecutor.from_agent_and_tools(
+            agent=agent,
+            tools=tools,
             return_intermediate_steps=True,
             max_iterations=20,
             max_execution_time=120,
+            stream_runnable=False,
         )
-        agent.agent.llm_chain.prompt.messages[0].prompt.template = (
-            f"Today's date is {HARDCODED_CURRENT_TIME.strftime('%A')}, {HARDCODED_CURRENT_TIME.date()} and the current time is {HARDCODED_CURRENT_TIME.time()}. Remember the current date and time when answering queries. Meetings must not start before 9am or end after 6pm."
-            + agent.agent.llm_chain.prompt.messages[0].prompt.template
-        )
+        # agent.agent.llm_chain.prompt.messages[0].prompt.template = (
+        #     f"Today's date is {HARDCODED_CURRENT_TIME.strftime('%A')}, {HARDCODED_CURRENT_TIME.date()} and the current time is {HARDCODED_CURRENT_TIME.time()}. Remember the current date and time when answering queries. Meetings must not start before 9am or end after 6pm."
+        #     + agent.agent.llm_chain.prompt.messages[0].prompt.template
+        # )
         error = ""
         function_calls = []
         response = ""
         try:
-            response = agent({"input": query})
+            response = agent_executor.invoke({"input": query})
             for step in response["intermediate_steps"]:
                 function_calls.append(convert_agent_action_to_function_call(step[-2]))
             if len(response["intermediate_steps"]) == 0:
@@ -706,7 +776,7 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
                     temprature_for_retry = 0.5
                     agent.agent.llm_chain.llm.temperature=temprature_for_retry
                     print(f"No actions taken. Retry {retry_num + 1} of {num_retrys}")
-                    response = agent({"input": query})
+                    response = agent_executor.invoke({"input": query})
                     for step in response["intermediate_steps"]:
                         function_calls.append(convert_agent_action_to_function_call(step[-2]))
                     if len(response["intermediate_steps"]) > 0:
@@ -729,8 +799,11 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
                 print(f"Context window exceeded with query: {query}")
                 error = "Context window exceeded"
             else:
-                print(f"Unknown error with query: {query}")
+                print(f"Unknown error with query: {query}: {e}")
                 error = str(e)
+                # print stack trace
+                import traceback
+                traceback.print_exc()
 
         print(f"### Query: {query}")
         print(f"### Answer: {function_calls}")
@@ -755,6 +828,9 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
         # Reset all data after each query
         for domain in DOMAINS:
             domain.reset_state()
+            
+    if child_process:
+        child_process.terminate()
 
     domain = queries_path.split("/")[-1].split(".")[0].replace("_queries_and_answers", "")
     save_dir = os.path.join("data", "results", domain)
