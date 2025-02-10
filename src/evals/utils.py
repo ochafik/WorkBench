@@ -30,7 +30,38 @@ from src.tools.toolkits import (
 
 DOMAINS = [calendar, email, analytics, project_management, customer_relationship_manager]
 AVAILABLE_LLMS = [
-    "llama.cpp:bartowski/Qwen2.5-7B-Instruct-GGUF",
+    "llama.cpp:bartowski/Qwen2.5.1-Coder-7B-Instruct-GGUF:Q6_K_L"
+    "llama.cpp:bartowski/Qwen2.5-7B-Instruct-GGUF:Q4_K_M"
+    "llama.cpp:bartowski/Mistral-Nemo-Instruct-2407-GGUF:Q6_K_L"
+    "llama.cpp:bartowski/Mistral-Nemo-Instruct-2407-GGUF:Q4_K_M"
+    "llama.cpp:bartowski/c4ai-command-r7b-12-2024-GGUF:Q6_K_L"
+    "llama.cpp:mav23/llama-3-firefunction-v2-GGUF:Q5_K_M"
+    "llama.cpp:bartowski/Hermes-2-Pro-Llama-3-8B-GGUF:Q4_K_M"
+    "llama.cpp:bartowski/Hermes-3-Llama-3.1-8B-GGUF:Q4_K_M"
+    "llama.cpp:Qwen/Qwen2.5-Coder-32B-Instruct-GGUF:q8_0"
+    "llama.cpp:bartowski/functionary-small-v3.2-GGUF:Q8_0"
+    "llama.cpp:bartowski/Llama-3.3-70B-Instruct-GGUF:Q4_K_M"
+    "llama.cpp:bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF:Q4_K_M"
+    "llama.cpp:bartowski/DeepSeek-R1-Distill-Qwen-32B-GGUF:Q6_K_L"
+    
+    # "llama.cpp:bartowski/functionary-small-v3.2-GGUF:Q4_K_M"
+    # "llama.cpp:bartowski/Phi-3.5-mini-instruct-GGUF:Q4_K_M"
+    # "llama.cpp:unsloth/Mistral-Small-24B-Instruct-2501-GGUF:Q6_K"
+    # "llama.cpp:bartowski/phi-4-GGUF:Q4_K_M"
+    # "llama.cpp:bartowski/c4ai-command-r-v01-GGUF:Q2_K"
+    # "llama.cpp:bartowski/c4ai-command-r7b-12-2024-GGUF:Q4_K_M"
+    # "llama.cpp:bartowski/DeepSeek-R1-Distill-Llama-70B-GGUF:Q6_K"
+    # "llama.cpp:bartowski/DeepSeek-R1-Distill-Llama-8B-GGUF:Q4_K_M"
+    # "llama.cpp:bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF:Q6_K_L"
+    # "llama.cpp:bartowski/gemma-2-2b-it-GGUF:Q4_K_M"
+    # "llama.cpp:bartowski/Llama-3.2-1B-Instruct-GGUF:Q4_K_M"
+    # "llama.cpp:bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M"
+    # "llama.cpp:bartowski/Llama-3.3-70B-Instruct-GGUF:IQ4_XS"
+    # "llama.cpp:bartowski/Meta-Llama-3.1-8B-Instruct-GGUF:Q4_K_M"
+    # "llama.cpp:bartowski/Qwen2.5.1-Coder-1.5B-Instruct-GGUF:Q4_K_M"
+    # "llama.cpp:bartowski/Qwen2.5.1-Coder-7B-Instruct-GGUF:Q4_K_M"
+    # "llama.cpp:bartowski/Qwen2.5.1-Coder-7B-Instruct-GGUF:Q6_K_L"
+    # "llama.cpp:unsloth/DeepSeek-R1-Distill-Llama-8B-GGUF:Q4_K_M"
     # "gpt-4",
     # "gpt-3.5",
     # "claude-2",
@@ -646,7 +677,7 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
     
     if model_name == "gpt-3.5":
         OPENAI_KEY = open("openai_key.txt", "r").read()
-        llm = OpenAI(
+        llm = ChatOpenAI(
             model_name="gpt-3.5-turbo-instruct",
             openai_api_key=OPENAI_KEY,
             temperature=0,
@@ -696,7 +727,13 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
             *(['--verbose'] if os.environ.get('DEBUG', '1') == 1 else []),
         ]
         print(f"Starting Llama server with command: {' '.join(cmd)}")
-        child_process = subprocess.Popen(cmd, shell=False)
+        child_process = subprocess.Popen(
+            cmd,
+            stdout=None, stderr=None,
+            # hide outputs
+            # stdout=subprocess.DEVNULL,
+            # stderr=subprocess.DEVNULL,
+            shell=False)
         import atexit
         atexit.register(lambda: child_process.terminate())
         llm = ChatOpenAI(
@@ -838,6 +875,6 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
 
     # Removes microseconds and makes it more readable
     current_datetime = str(pd.Timestamp.now()).split(".")[0].replace(" ", "_").replace(":", "-")
-    save_path = os.path.join(save_dir, model_name + "_" + tool_selection + "_" + current_datetime + ".csv")
+    save_path = os.path.join(save_dir, model_name.replace(':', '-').replace('/', '-') + "_" + tool_selection + "_" + current_datetime + ".csv")
     results.to_csv(save_path, index=False, quoting=csv.QUOTE_ALL)
     return results
