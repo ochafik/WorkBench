@@ -1,5 +1,6 @@
 import pandas as pd
 from langchain.tools import tool
+from typing import Dict, List, Optional, Union
 
 CRM_DATA = pd.read_csv("data/processed/customer_relationship_manager_data.csv", dtype=str)
 
@@ -14,16 +15,16 @@ def reset_state():
 
 @tool("customer_relationship_manager.search_customers", return_direct=False)
 def search_customers(
-    customer_name=None,
-    customer_email=None,
-    product_interest=None,
-    status=None,
-    assigned_to_email=None,
-    last_contact_date_min=None,
-    last_contact_date_max=None,
-    follow_up_by_min=None,
-    follow_up_by_max=None,
-):
+    customer_name: Optional[str] = None,
+    customer_email: Optional[str] = None,
+    product_interest: Optional[str] = None,
+    status: Optional[str] = None,
+    assigned_to_email: Optional[str] = None,
+    last_contact_date_min: Optional[str] = None,
+    last_contact_date_max: Optional[str] = None,
+    follow_up_by_min: Optional[str] = None,
+    follow_up_by_max: Optional[str] = None
+) -> Union[str, List[Dict[str, str]]]:
     """
     Searches for customers based on the given parameters.
 
@@ -98,7 +99,11 @@ def search_customers(
 
 
 @tool("customer_relationship_manager.update_customer", return_direct=False)
-def update_customer(customer_id=None, field=None, new_value=None):
+def update_customer(
+    customer_id: Optional[str] = None,
+    field: Optional[str] = None,
+    new_value: Optional[str] = None
+) -> str:
     """
     Updates a customer record by ID.
 
@@ -147,16 +152,16 @@ def update_customer(customer_id=None, field=None, new_value=None):
 
 @tool("customer_relationship_manager.add_customer", return_direct=False)
 def add_customer(
-    customer_name=None,
-    assigned_to_email=None,
-    status=None,
-    customer_email=None,
-    customer_phone=None,
-    last_contact_date=None,
-    product_interest=None,
-    notes="",
-    follow_up_by=None,
-):
+    customer_name: Optional[str] = None,
+    assigned_to_email: Optional[str] = None,
+    status: Optional[str] = None,
+    customer_email: Optional[str] = None,
+    customer_phone: Optional[str] = None,
+    last_contact_date: Optional[str] = None,
+    product_interest: Optional[str] = None,
+    notes: str = "",
+    follow_up_by: Optional[str] = None
+) -> str:
     """
     Adds a new customer record.
 
@@ -219,7 +224,7 @@ def add_customer(
 
 
 @tool("customer_relationship_manager.delete_customer", return_direct=False)
-def delete_customer(customer_id=None):
+def delete_customer(customer_id: Optional[str] = None) -> str:
     """
     Deletes a customer record by ID.
 

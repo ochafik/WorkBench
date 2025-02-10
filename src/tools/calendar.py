@@ -1,5 +1,6 @@
 import pandas as pd
 from langchain.tools import tool
+from typing import Dict, List, Optional, Union
 
 # Data is hard-coded so that the agent can call them without passing the dataframe as an argument.
 # We cannot use a class because LangChain does not support tools inside classes.
@@ -15,7 +16,10 @@ def reset_state():
 
 
 @tool("calendar.get_event_information_by_id", return_direct=False)
-def get_event_information_by_id(event_id=None, field=None):
+def get_event_information_by_id(
+    event_id: Optional[str] = None,
+    field: Optional[str] = None
+) -> Union[str, Dict[str, str]]:
     """
     Returns the event for a given ID.
 
@@ -59,7 +63,11 @@ def get_event_information_by_id(event_id=None, field=None):
 
 
 @tool("calendar.search_events", return_direct=False)
-def search_events(query="", time_min=None, time_max=None):
+def search_events(
+    query: str = "",
+    time_min: Optional[str] = None,
+    time_max: Optional[str] = None
+) -> Union[str, List[Dict[str, str]]]:
     """
     Returns the events for a given query.
 
@@ -99,7 +107,12 @@ def search_events(query="", time_min=None, time_max=None):
 
 
 @tool("calendar.create_event", return_direct=False)
-def create_event(event_name=None, participant_email=None, event_start=None, duration=None):
+def create_event(
+    event_name: Optional[str] = None,
+    participant_email: Optional[str] = None,
+    event_start: Optional[str] = None,
+    duration: Optional[str] = None
+) -> str:
     """
     Creates a new event.
 
@@ -153,7 +166,7 @@ def create_event(event_name=None, participant_email=None, event_start=None, dura
 
 
 @tool("calendar.delete_event", return_direct=False)
-def delete_event(event_id=None):
+def delete_event(event_id: Optional[str] = None) -> str:
     """
     Deletes an event.
 
@@ -186,7 +199,11 @@ def delete_event(event_id=None):
 
 
 @tool("calendar.update_event", return_direct=False)
-def update_event(event_id=None, field=None, new_value=None):
+def update_event(
+    event_id: Optional[str] = None,
+    field: Optional[str] = None,
+    new_value: Optional[str] = None
+) -> str:
     """
     Updates an event.
 

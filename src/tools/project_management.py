@@ -1,5 +1,6 @@
 import pandas as pd
 from langchain.tools import tool
+from typing import Dict, List, Optional, Union
 
 # Data is hard-coded so that the agent can call them without passing the dataframe as an argument.
 # We cannot use a class because LangChain does not support tools inside classes.
@@ -15,7 +16,10 @@ def reset_state():
 
 
 @tool("project_management.get_task_information_by_id", return_direct=False)
-def get_task_information_by_id(task_id=None, field=None):
+def get_task_information_by_id(
+    task_id: Optional[str] = None,
+    field: Optional[str] = None
+) -> Union[str, Dict[str, str]]:
     """
     Returns the task infomration for a given ID.
 
@@ -51,7 +55,13 @@ def get_task_information_by_id(task_id=None, field=None):
 
 
 @tool("project_management.search_tasks", return_direct=False)
-def search_tasks(task_name=None, assigned_to_email=None, list_name=None, due_date=None, board=None):
+def search_tasks(
+    task_name: Optional[str] = None,
+    assigned_to_email: Optional[str] = None,
+    list_name: Optional[str] = None,
+    due_date: Optional[str] = None,
+    board: Optional[str] = None
+) -> Union[str, List[Dict[str, str]]]:
     """
     Searches for tasks based on the given parameters.
 
@@ -95,7 +105,13 @@ def search_tasks(task_name=None, assigned_to_email=None, list_name=None, due_dat
 
 
 @tool("project_management.create_task", return_direct=False)
-def create_task(task_name=None, assigned_to_email=None, list_name=None, due_date=None, board=None):
+def create_task(
+    task_name: Optional[str] = None,
+    assigned_to_email: Optional[str] = None,
+    list_name: Optional[str] = None,
+    due_date: Optional[str] = None,
+    board: Optional[str] = None
+) -> str:
     """
     Creates a new task.
 
@@ -151,7 +167,7 @@ def create_task(task_name=None, assigned_to_email=None, list_name=None, due_date
 
 
 @tool("project_management.delete_task", return_direct=False)
-def delete_task(task_id=None):
+def delete_task(task_id: Optional[str] = None) -> str:
     """
     Deletes a task by ID.
 
@@ -183,7 +199,11 @@ def delete_task(task_id=None):
 
 
 @tool("project_management.update_task", return_direct=False)
-def update_task(task_id=None, field=None, new_value=None):
+def update_task(
+    task_id: Optional[str] = None,
+    field: Optional[str] = None,
+    new_value: Optional[str] = None
+) -> str:
     """
     Updates a task by ID.
 

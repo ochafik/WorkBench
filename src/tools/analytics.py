@@ -1,5 +1,6 @@
 import pandas as pd
 from langchain.tools import tool
+from typing import Dict, Optional, Union, List
 
 ANALYTICS_DATA = pd.read_csv("data/processed/analytics_data.csv", dtype=str)
 ANALYTICS_DATA["user_engaged"] = ANALYTICS_DATA["user_engaged"] == "True"  # Convert to boolean
@@ -20,7 +21,7 @@ def reset_state():
 
 
 @tool("analytics.get_visitor_information_by_id", return_direct=False)
-def get_visitor_information_by_id(visitor_id=None):
+def get_visitor_information_by_id(visitor_id: Optional[str] = None) -> Union[str, List[Dict[str, str]]]:
     """
     Returns the analytics data for a given visitor ID.
 
@@ -50,7 +51,12 @@ def get_visitor_information_by_id(visitor_id=None):
 
 
 @tool("analytics.create_plot", return_direct=False)
-def create_plot(time_min=None, time_max=None, value_to_plot=None, plot_type=None):
+def create_plot(
+    time_min: Optional[str] = None,
+    time_max: Optional[str] = None,
+    value_to_plot: Optional[str] = None,
+    plot_type: Optional[str] = None
+) -> str:
     """
     Plots the analytics data for a given time range and value.
 
@@ -101,7 +107,10 @@ def create_plot(time_min=None, time_max=None, value_to_plot=None, plot_type=None
 
 
 @tool("analytics.total_visits_count", return_direct=False)
-def total_visits_count(time_min=None, time_max=None):
+def total_visits_count(
+    time_min: Optional[str] = None,
+    time_max: Optional[str] = None
+) -> Dict[str, int]:
     """
     Returns the total number of visits within a specified time range.
 
@@ -132,7 +141,10 @@ def total_visits_count(time_min=None, time_max=None):
 
 
 @tool("analytics.engaged_users_count", return_direct=False)
-def engaged_users_count(time_min=None, time_max=None):
+def engaged_users_count(
+    time_min: Optional[str] = None,
+    time_max: Optional[str] = None
+) -> Dict[str, int]:
     """
     Returns the number of engaged users within a specified time range.
 
@@ -165,7 +177,11 @@ def engaged_users_count(time_min=None, time_max=None):
 
 
 @tool("analytics.traffic_source_count", return_direct=False)
-def traffic_source_count(time_min=None, time_max=None, traffic_source=None):
+def traffic_source_count(
+    time_min: Optional[str] = None,
+    time_max: Optional[str] = None,
+    traffic_source: Optional[str] = None
+) -> Dict[str, int]:
     """
     Returns the number of visits from a specific traffic source within a specified time range.
 
@@ -203,7 +219,10 @@ def traffic_source_count(time_min=None, time_max=None, traffic_source=None):
 
 
 @tool("analytics.get_average_session_duration", return_direct=False)
-def get_average_session_duration(time_min=None, time_max=None):
+def get_average_session_duration(
+    time_min: Optional[str] = None,
+    time_max: Optional[str] = None
+) -> Dict[str, float]:
     """
     Returns the average session duration within a specified time range.
 
