@@ -23,12 +23,9 @@ def get_task_information_by_id(
     """
     Returns the task infomration for a given ID.
 
-    Parameters
-    ----------
-    task_id : str, optional
-        8-digit ID of the task.
-    field : str, optional
-        Field to return. Available fields are: "task_id", "task_name", "assigned_to_email", "list_name", "due_date", "board"
+    Args:
+        task_id: 8-digit ID of the task.
+        field: Field to return. Available fields are: "task_id", "task_name", "assigned_to_email", "list_name", "due_date", "board"
 
     Returns
     -------
@@ -65,18 +62,12 @@ def search_tasks(
     """
     Searches for tasks based on the given parameters.
 
-    Parameters
-    ----------
-    task_name : str, optional
-        Name of the task.
-    assigned_to_email : str, optional
-        Email address of the person assigned to the task.
-    list_name : str, optional
-        Name of the list the task belongs to.
-    due_date : str, optional
-        Due date of the task in "YYYY-MM-DD" format.
-    board : str, optional
-        Name of the board the task belongs to.
+    Args:
+        task_name: Name of the task.
+        assigned_to_email: Email address of the person assigned to the task.
+        list_name: Name of the list the task belongs to.
+        due_date: Due date of the task in "YYYY-MM-DD" format.
+        board: Name of the board the task belongs to.
 
     Returns
     -------
@@ -115,23 +106,16 @@ def create_task(
     """
     Creates a new task.
 
-    Parameters
-    ----------
-    task_name : str
-        Name of the task.
-    assigned_to_email : str
-        Email address of the person assigned to the task.
-    list_name : str
-        Name of the list the task belongs to.
-    due_date : str
-        Due date of the task in "YYYY-MM-DD" format.
-    board : str
-        Name of the board the task belongs to.
+    Args:
+        task_name: Name of the task.
+        assigned_to_email: Email address of the person assigned to the task.
+        list_name: Name of the list the task belongs to.
+        due_date: Due date of the task in "YYYY-MM-DD" format.
+        board: Name of the board the task belongs to.
 
     Returns
     -------
-    task_id : str
-        8-digit ID of the new task.
+        task_id: 8-digit ID of the new task.
 
     Examples
     --------
@@ -171,15 +155,12 @@ def delete_task(task_id: Optional[str] = None) -> str:
     """
     Deletes a task by ID.
 
-    Parameters
-    ----------
-    task_id : str
-        8-digit ID of the task.
+    Args:
+        task_id: 8-digit ID of the task.
 
     Returns
     -------
-    message : str
-        Message indicating the status of the deletion.
+        message: Message indicating the status of the deletion.
 
     Examples
     --------
@@ -207,19 +188,14 @@ def update_task(
     """
     Updates a task by ID.
 
-    Parameters
-    ----------
-    task_id : str
-        8-digit ID of the task.
-    field : str
-        Field to update. Available fields are: "task_name", "assigned_to_email", "list_name", "due_date", "board"
-    new_value : str
-        New value for the field.
+    Args:
+        task_id: 8-digit ID of the task.
+        field: Field to update. Available fields are: "task_name", "assigned_to_email", "list_name", "due_date", "board"
+        new_value: New value for the field.
 
     Returns
     -------
-    message : str
-        Message indicating the status of the update.
+        message: Message indicating the status of the update.
 
     Examples
     --------

@@ -11,10 +11,8 @@ def find_email_address(name: str = "") -> Union[str, np.ndarray]:
     """
     Finds the email address of an employee by their name.
 
-    Parameters
-    ----------
-    name : str, optional
-        Name of the person.
+    Args:
+        name: Name of the person.
 
     Returns
     -------

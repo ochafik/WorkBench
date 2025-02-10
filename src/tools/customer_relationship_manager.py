@@ -28,26 +28,16 @@ def search_customers(
     """
     Searches for customers based on the given parameters.
 
-    Parameters
-    ----------
-    customer_name : str, optional
-        Name of the customer.
-    customer_email : str, optional
-        Email address of the customer.
-    product_interest : str, optional
-        Product interest of the customer.
-    status : str, optional
-        Current status of the customer.
-    assigned_to_email : str, optional
-        Email address of the person assigned to the customer.
-    last_contact_date_min : str, optional
-        Minimum last contact date. Format: "YYYY-MM-DD"
-    last_contact_date_max : str, optional
-        Maximum last contact date. Format: "YYYY-MM-DD"
-    follow_up_by_min : str, optional
-        Minimum follow up date. Format: "YYYY-MM-DD"
-    follow_up_by_max : str, optional
-        Maximum follow up date. Format: "YYYY-MM-DD"
+    Args:
+        customer_name: Name of the customer.
+        customer_email: Email address of the customer.
+        product_interest: Product interest of the customer.
+        status: Current status of the customer.
+        assigned_to_email: Email address of the person assigned to the customer.
+        last_contact_date_min: Minimum last contact date. Format: "YYYY-MM-DD"
+        last_contact_date_max: Maximum last contact date. Format: "YYYY-MM-DD"
+        follow_up_by_min: Minimum follow up date. Format: "YYYY-MM-DD"
+        follow_up_by_max: Maximum follow up date. Format: "YYYY-MM-DD"
 
     Returns
     -------
@@ -107,19 +97,14 @@ def update_customer(
     """
     Updates a customer record by ID.
 
-    Parameters
-    ----------
-    customer_id : str
-        ID of the customer.
-    field : str
-        Field to update. Available fields are: "customer_name", "assigned_to_email", "customer_email", "customer_phone", "last_contact_date", "product_interest", "status", "notes", "follow_up_by"
-    new_value : str
-        New value for the field.
+    Args:
+        customer_id: ID of the customer.
+        field: Field to update. Available fields are: "customer_name", "assigned_to_email", "customer_email", "customer_phone", "last_contact_date", "product_interest", "status", "notes", "follow_up_by"
+        new_value: New value for the field.
 
     Returns
     -------
-    message : str
-        Message indicating the status of the update.
+        message: Message indicating the status of the update.
 
     Examples
     --------
@@ -165,31 +150,20 @@ def add_customer(
     """
     Adds a new customer record.
 
-    Parameters
-    ----------
-    customer_name : str
-        Name of the customer.
-    assigned_to_email : str
-        Email address of the person assigned to the customer.
-    status : str
-        Current status of the customer. One of: "Qualified", "Won", "Lost", "Lead", "Proposal"
-    customer_email : str, optional
-        Email address of the customer.
-    customer_phone : str, optional
-        Phone number of the customer.
-    last_contact_date : str, optional
-        The last date the customer was contacted. Format: "YYYY-MM-DD"
-    product_interest : str, optional
-        Product interest of the customer. One of: "Software", "Hardware", "Services", "Consulting", "Training"
-    notes : str, optional, optional
-        Notes about the customer.
-    follow_up_by : str, optional
-        Date for the next follow up. Format: "YYYY-MM-DD"
+    Args:
+        customer_name: Name of the customer.
+        assigned_to_email: Email address of the person assigned to the customer.
+        status: Current status of the customer. One of: "Qualified", "Won", "Lost", "Lead", "Proposal"
+        customer_email: Email address of the customer.
+        customer_phone: Phone number of the customer.
+        last_contact_date: The last date the customer was contacted. Format: "YYYY-MM-DD"
+        product_interest: Product interest of the customer. One of: "Software", "Hardware", "Services", "Consulting", "Training"
+        notes: Notes about the customer.
+        follow_up_by: Date for the next follow up. Format: "YYYY-MM-DD"
 
     Returns
     -------
-    customer_id : str
-        ID of the new customer.
+        customer_id: ID of the new customer.
 
     Examples
     --------
@@ -228,15 +202,12 @@ def delete_customer(customer_id: Optional[str] = None) -> str:
     """
     Deletes a customer record by ID.
 
-    Parameters
-    ----------
-    customer_id : str
-        ID of the customer.
+    Args:
+        customer_id: ID of the customer.
 
     Returns
     -------
-    message : str
-        Message indicating the status of the deletion.
+        message: Message indicating the status of the deletion.
 
     Examples
     --------

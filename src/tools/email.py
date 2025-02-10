@@ -25,12 +25,9 @@ def get_email_information_by_id(
     """
     Retrieves specific details of an email by its ID.
 
-    Parameters
-    ----------
-    email_id : str, optional
-        Unique ID of the email.
-    field : str, optional
-        Specific field to return. Available fields: "email_id", "sender", "subject", "sent_date", "body", "inbox/outbox".
+    Args:
+        email_id: Unique ID of the email.
+        field: Specific field to return. Available fields: "email_id", "sender", "subject", "sent_date", "body", "inbox/outbox".
 
     Returns
     -------
@@ -69,14 +66,10 @@ def search_emails(
     Searches for emails matching the given query across subject, body, or sender fields.
     The function matches an email if all words in the query appear in any of these fields.
 
-    Parameters
-    ----------
-    query : str, optional
-        Search query, matching terms in subject, body, or sender fields.
-    date_min : str, optional
-        Lower date limit for the email's sent date (inclusive). Format: "YYYY-MM-DD"
-    date_max : str, optional
-        Upper date limit for the email's sent date (inclusive). Format: "YYYY-MM-DD"
+    Args:
+        query: Search query, matching terms in subject, body, or sender fields.
+        date_min: Lower date limit for the email's sent date (inclusive). Format: "YYYY-MM-DD"
+        date_max: Upper date limit for the email's sent date (inclusive). Format: "YYYY-MM-DD"
 
     Returns
     -------
@@ -123,14 +116,10 @@ def send_email(
     """
     Sends an email to the specified recipient.
 
-    Parameters
-    ----------
-    recipient : str, optional
-        Email address of the recipient.
-    subject : str, optional
-        Subject line of the email.
-    body : str, optional
-        Body content of the email.
+    Args:
+        recipient: Email address of the recipient.
+        subject: Subject line of the email.
+        body: Body content of the email.
 
     Returns
     -------
@@ -168,10 +157,8 @@ def delete_email(email_id: Optional[str] = None) -> str:
     """
     Deletes an email by its ID.
 
-    Parameters
-    ----------
-    email_id : str, optional
-        Unique ID of the email to be deleted.
+    Args:
+        email_id: Unique ID of the email to be deleted.
 
     Returns
     -------
@@ -203,12 +190,9 @@ def forward_email(
     """
     Forwards an email to the specified recipient.
 
-    Parameters
-    ----------
-    email_id : str, optional
-        Unique ID of the email to be forwarded.
-    recipient : str, optional
-        Email address of the recipient.
+    Args:
+        email_id: Unique ID of the email to be forwarded.
+        recipient: Email address of the recipient.
 
     Returns
     -------
@@ -241,12 +225,9 @@ def reply_email(
     """
     Replies to an email by its ID.
 
-    Parameters
-    ----------
-    email_id : str, optional
-        Unique ID of the email to be replied.
-    body : str, optional
-        Body content of the email.
+    Args:
+        email_id: Unique ID of the email to be replied.
+        body: Body content of the email.
 
     Returns
     -------

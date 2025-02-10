@@ -23,12 +23,9 @@ def get_event_information_by_id(
     """
     Returns the event for a given ID.
 
-    Parameters
-    ----------
-    event_id : str, optional
-        8-digit ID of the event.
-    field : str, optional
-        Field to return. Available fields are: "event_id", "event_name", "participant_email", "event_start", "duration"
+    Args:
+        event_id: 8-digit ID of the event.
+        field: Field to return. Available fields are: "event_id", "event_name", "participant_email", "event_start", "duration"
 
     Returns
     -------
@@ -71,14 +68,10 @@ def search_events(
     """
     Returns the events for a given query.
 
-    Parameters
-    ----------
-    query: str, optional
-        Query to search for. Terms will be matched in the event_name and participant_email fields.
-    time_min: str, optional
-        Lower bound (inclusive) for an event's end time to filter by. Format: "YYYY-MM-DD HH:MM:SS"
-    time_max: str, optional
-        Upper bound (inclusive) for an event's start time to filter by. Format: "YYYY-MM-DD HH:MM:SS
+    Args:
+        query: Query to search for. Terms will be matched in the event_name and participant_email fields.
+        time_min: Lower bound (inclusive) for an event's end time to filter by. Format: "YYYY-MM-DD HH:MM:SS"
+        time_max: Upper bound (inclusive) for an event's start time to filter by. Format: "YYYY-MM-DD HH:MM:SS
 
     Returns
     -------
@@ -116,21 +109,15 @@ def create_event(
     """
     Creates a new event.
 
-    Parameters
-    ----------
-    event_name: str, optional
-        Name of the event.
-    participant_email: str, optional
-        Email of the participant.
-    event_start: str, optional
-        Start time of the event. Format: "YYYY-MM-DD HH:MM:SS"
-    duration: str, optional
-        Duration of the event in minutes.
+    Args:
+        event_name: Name of the event.
+        participant_email: Email of the participant.
+        event_start: Start time of the event. Format: "YYYY-MM-DD HH:MM:SS"
+        duration: Duration of the event in minutes.
 
     Returns
     -------
-    event_id : str
-        ID of the newly created event.
+        event_id: ID of the newly created event.
 
     Examples
     --------
@@ -170,15 +157,12 @@ def delete_event(event_id: Optional[str] = None) -> str:
     """
     Deletes an event.
 
-    Parameters
-    ----------
-    event_id: str, optional
-        8-digit ID of the event.
+    Args:
+        event_id: 8-digit ID of the event.
 
     Returns
     -------
-    message : str
-        Message indicating whether the deletion was successful.
+        message: Message indicating whether the deletion was successful.
 
     Examples
     --------
@@ -207,19 +191,14 @@ def update_event(
     """
     Updates an event.
 
-    Parameters
-    ----------
-    event_id: str, optional
-        8-digit ID of the event.
-    field: str, optional
-        Field to update.
-    new_value: str, optional
-        New value for the field.
+    Args:
+        event_id: 8-digit ID of the event.
+        field: Field to update.
+        new_value: New value for the field.
 
     Returns
     -------
-    message : str
-        Message indicating whether the update was successful.
+        message: Message indicating whether the update was successful.
 
     Examples
     --------

@@ -25,10 +25,8 @@ def get_visitor_information_by_id(visitor_id: Optional[str] = None) -> Union[str
     """
     Returns the analytics data for a given visitor ID.
 
-    Parameters
-    ----------
-    visitor_id : str, optional
-        ID of the visitor.
+    Args:
+        visitor_id: ID of the visitor.
 
     Returns
     -------
@@ -60,16 +58,11 @@ def create_plot(
     """
     Plots the analytics data for a given time range and value.
 
-    Parameters
-    ----------
-    time_min : str, optional
-        Start date of the time range. Date format is "YYYY-MM-DD".
-    time_max : str, optional
-        End date of the time range. Date format is "YYYY-MM-DD".
-    value_to_plot : str, optional
-        Value to plot. Available values are: "total_visits", "session_duration_seconds", "user_engaged", "visits_direct", "visits_referral", "visits_search_engine", "visits_social_media"
-    plot_type : str, optional
-        Type of plot. Can be "bar", "line", "scatter" or "histogram"
+    Args:
+        time_min: Start date of the time range. Date format is "YYYY-MM-DD".
+        time_max: End date of the time range. Date format is "YYYY-MM-DD".
+        value_to_plot: Value to plot. Available values are: "total_visits", "session_duration_seconds", "user_engaged", "visits_direct", "visits_referral", "visits_search_engine", "visits_social_media"
+        plot_type: Type of plot. Can be "bar", "line", "scatter" or "histogram"
 
     Returns
     -------
@@ -114,12 +107,9 @@ def total_visits_count(
     """
     Returns the total number of visits within a specified time range.
 
-    Parameters
-    ----------
-    time_min : str, optional
-        Start date of the time range. Date format is "YYYY-MM-DD".
-    time_max : str, optional
-        End date of the time range. Date format is "YYYY-MM-DD".
+    Args:
+        time_min: Start date of the time range. Date format is "YYYY-MM-DD".
+        time_max: End date of the time range. Date format is "YYYY-MM-DD".
 
     Returns
     -------
@@ -148,12 +138,9 @@ def engaged_users_count(
     """
     Returns the number of engaged users within a specified time range.
 
-    Parameters
-    ----------
-    time_min : str, optional
-        Start date of the time range. Date format is "YYYY-MM-DD".
-    time_max : str, optional
-        End date of the time range. Date format is "YYYY-MM-DD".
+    Args:
+        time_min: Start date of the time range. Date format is "YYYY-MM-DD".
+        time_max: End date of the time range. Date format is "YYYY-MM-DD".
 
     Returns
     -------
@@ -185,14 +172,10 @@ def traffic_source_count(
     """
     Returns the number of visits from a specific traffic source within a specified time range.
 
-    Parameters
-    ----------
-    time_min : str, optional
-        Start date of the time range. Date format is "YYYY-MM-DD".
-    time_max : str, optional
-        End date of the time range. Date format is "YYYY-MM-DD".
-    traffic_source : str, optional
-        Traffic source to filter the visits. Available values are: "direct", "referral", "search engine", "social media"
+    Args:
+        time_min: Start date of the time range. Date format is "YYYY-MM-DD".
+        time_max: End date of the time range. Date format is "YYYY-MM-DD".
+        traffic_source: Traffic source to filter the visits. Available values are: "direct", "referral", "search engine", "social media"
 
     Returns
     -------
@@ -226,12 +209,9 @@ def get_average_session_duration(
     """
     Returns the average session duration within a specified time range.
 
-    Parameters
-    ----------
-    time_min : str, optional
-        Start date of the time range. Date format is "YYYY-MM-DD".
-    time_max : str, optional
-        End date of the time range. Date format is "YYYY-MM-DD".
+    Args:
+        time_min: Start date of the time range. Date format is "YYYY-MM-DD".
+        time_max: End date of the time range. Date format is "YYYY-MM-DD".
 
     Returns
     -------
