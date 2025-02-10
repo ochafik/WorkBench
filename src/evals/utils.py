@@ -6,10 +6,14 @@ import pandas as pd
 import random
 import ast
 from langchain import hub
-from langchain.agents import create_openai_tools_agent, create_structured_chat_agent, AgentExecutor
+from langchain.agents import convert_to_openai_tool, create_openai_tools_agent, create_structured_chat_agent, AgentExecutor
 from langchain_core.prompts.chat import ChatPromptTemplate
+# from langchain_openai.chat_models import ChatOpenAI
+# from langchain_anthropic.chat_models import ChatAnthropic
+# from langchain_ollama.llms import OllamaLLM
+# from langchain_community.chat_models.ollama import ChatOllama
 from langchain_community.chat_models.openai import ChatOpenAI
-from langchain_community.chat_models.anthropic import ChatAnthropic
+# from langchain_community.chat_models.anthropic import ChatAnthropic
 from langchain_community.chat_models.anyscale import ChatAnyscale
 from langchain.agents import initialize_agent, AgentType
 import csv
@@ -30,19 +34,22 @@ from src.tools.toolkits import (
 
 DOMAINS = [calendar, email, analytics, project_management, customer_relationship_manager]
 AVAILABLE_LLMS = [
-    "llama.cpp:bartowski/Qwen2.5.1-Coder-7B-Instruct-GGUF:Q6_K_L",
-    "llama.cpp:bartowski/Qwen2.5-7B-Instruct-GGUF:Q4_K_M",
-    "llama.cpp:bartowski/Mistral-Nemo-Instruct-2407-GGUF:Q6_K_L",
+    "ollama:qwen2.5-coder:7b",
+    "llama.cpp:bartowski/Qwen2.5-Coder-7B-Instruct-GGUF",
     "llama.cpp:bartowski/Mistral-Nemo-Instruct-2407-GGUF:Q4_K_M",
+    # "llama.cpp:bartowski/Qwen2.5.1-Coder-7B-Instruct-GGUF:Q6_K_L",
+
+    # "llama.cpp:bartowski/Qwen2.5-7B-Instruct-GGUF:Q4_K_M",
+    # "llama.cpp:bartowski/Mistral-Nemo-Instruct-2407-GGUF:Q6_K_L",
     "llama.cpp:bartowski/c4ai-command-r7b-12-2024-GGUF:Q6_K_L",
     "llama.cpp:mav23/llama-3-firefunction-v2-GGUF:Q5_K_M",
     "llama.cpp:bartowski/Hermes-2-Pro-Llama-3-8B-GGUF:Q4_K_M",
     "llama.cpp:bartowski/Hermes-3-Llama-3.1-8B-GGUF:Q4_K_M",
-    "llama.cpp:Qwen/Qwen2.5-Coder-32B-Instruct-GGUF:q8_0",
     "llama.cpp:bartowski/functionary-small-v3.2-GGUF:Q8_0",
     "llama.cpp:bartowski/Llama-3.3-70B-Instruct-GGUF:Q4_K_M",
     "llama.cpp:bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF:Q4_K_M",
     "llama.cpp:bartowski/DeepSeek-R1-Distill-Qwen-32B-GGUF:Q6_K_L",
+    "llama.cpp:Qwen/Qwen2.5-Coder-32B-Instruct-GGUF:q8_0",
     # "llama.cpp:bartowski/functionary-small-v3.2-GGUF:Q4_K_M",
     # "llama.cpp:bartowski/Phi-3.5-mini-instruct-GGUF:Q4_K_M",
     # "llama.cpp:unsloth/Mistral-Small-24B-Instruct-2501-GGUF:Q6_K",
@@ -752,6 +759,27 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
             except Exception as e:
                 print(f"Failed to connect to the Llama server ({e}). Retrying {retries_left} more times.")
             time.sleep(1)
+    elif model_name.startswith("ollama:"):
+        model_id = model_name[model_name.index(":")+1:]
+        ollama_port = 11434
+        ollama_base_url = f"http://localhost:{ollama_port}"
+        subprocess.check_output(["ollama", "pull", model_id])
+        # time.sleep(5)
+        print(f"Starting Ollama server with model {model_id}")  
+        llm = ChatOpenAI(
+            model_name=model_id,
+            base_url=f"{ollama_base_url}/v1",
+            # temperature=0,
+            model_kwargs={"seed": 42},
+            # streaming=False,
+        )
+        # llm = OllamaLLM(
+        #     model=model_id,
+        #     temperature=0,
+        #     model_kwargs={"seed": 42},
+        #     # base_url=f"{ollama_base_url}/v1",
+        #     streaming=False,
+        # )
 
     else:
         raise ValueError("Invalid --model_name. Must be one of " + ", ".join(AVAILABLE_LLMS))
@@ -781,6 +809,9 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
                 MessagesPlaceholder("agent_scratchpad"),
             ]
         )
+        
+        # tools=[convert_to_openai_tool(tool) for tool in tools]
+        
         # prompt = hub.pull("hwchase17/openai-tools-agent")
         agent = create_openai_tools_agent(
             llm=llm,
@@ -792,8 +823,9 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
             agent=agent,
             tools=tools,
             return_intermediate_steps=True,
-            max_iterations=20,
-            max_execution_time=120,
+            max_iterations=1,
+            # max_iterations=20,
+            # max_execution_time=120,
             stream_runnable=False,
         )
         # agent.agent.llm_chain.prompt.messages[0].prompt.template = (
@@ -805,6 +837,7 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
         response = ""
         try:
             response = agent_executor.invoke({"input": query})
+            # print("Response:", response)
             for step in response["intermediate_steps"]:
                 function_calls.append(convert_agent_action_to_function_call(step[-2]))
             if len(response["intermediate_steps"]) == 0:
