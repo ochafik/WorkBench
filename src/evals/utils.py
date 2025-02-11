@@ -1,3 +1,8 @@
+'''
+conda activate WorkBench
+clear ; LLAMA_SERVER=$PWD/../llama.cpp/build/bin/llama-server python -u ./scripts/inference/generate_all_results.py 2>&1 | tee out-tools3.log
+'''
+
 import re
 import os
 import subprocess
@@ -5,8 +10,10 @@ import time
 import pandas as pd
 import random
 import ast
+import atexit
 from langchain import hub
-from langchain.agents import convert_to_openai_tool, create_openai_tools_agent, create_structured_chat_agent, AgentExecutor
+from langchain.agents import create_openai_tools_agent, create_structured_chat_agent, AgentExecutor
+from langchain_core.utils.function_calling import convert_to_openai_tool
 from langchain_core.prompts.chat import ChatPromptTemplate
 # from langchain_openai.chat_models import ChatOpenAI
 # from langchain_anthropic.chat_models import ChatAnthropic
@@ -34,40 +41,46 @@ from src.tools.toolkits import (
 
 DOMAINS = [calendar, email, analytics, project_management, customer_relationship_manager]
 AVAILABLE_LLMS = [
-    "ollama:qwen2.5-coder:7b",
     "llama.cpp:bartowski/Qwen2.5-Coder-7B-Instruct-GGUF",
-    "llama.cpp:bartowski/Mistral-Nemo-Instruct-2407-GGUF:Q4_K_M",
-    # "llama.cpp:bartowski/Qwen2.5.1-Coder-7B-Instruct-GGUF:Q6_K_L",
+    "ollama:qwen2.5-coder:7b",
+    "llama.cpp:bartowski/Qwen2.5-7B-Instruct-GGUF",
+    "llama.cpp:bartowski/Meta-Llama-3.1-8B-Instruct-GGUF",
+    "llama.cpp:bartowski/Qwen2.5.1-Coder-7B-Instruct-GGUF:Q6_K_L",
+    # "llama.cpp:bartowski/Llama-3.2-1B-Instruct-GGUF",
+    # "llama.cpp:bartowski/Llama-3.2-3B-Instruct-GGUF",
+    
+    # "ollama:qwen2.5:1.5b-instruct-q4_K_M",
+    # "llama.cpp:bartowski/Qwen2.5-1.5B-Instruct-GGUF",
+    
+    
+    # "llama.cpp:bartowski/Mistral-Nemo-Instruct-2407-GGUF",
 
-    # "llama.cpp:bartowski/Qwen2.5-7B-Instruct-GGUF:Q4_K_M",
+    # "llama.cpp:bartowski/Qwen2.5-7B-Instruct-GGUF",
     # "llama.cpp:bartowski/Mistral-Nemo-Instruct-2407-GGUF:Q6_K_L",
-    "llama.cpp:bartowski/c4ai-command-r7b-12-2024-GGUF:Q6_K_L",
-    "llama.cpp:mav23/llama-3-firefunction-v2-GGUF:Q5_K_M",
-    "llama.cpp:bartowski/Hermes-2-Pro-Llama-3-8B-GGUF:Q4_K_M",
-    "llama.cpp:bartowski/Hermes-3-Llama-3.1-8B-GGUF:Q4_K_M",
-    "llama.cpp:bartowski/functionary-small-v3.2-GGUF:Q8_0",
-    "llama.cpp:bartowski/Llama-3.3-70B-Instruct-GGUF:Q4_K_M",
-    "llama.cpp:bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF:Q4_K_M",
-    "llama.cpp:bartowski/DeepSeek-R1-Distill-Qwen-32B-GGUF:Q6_K_L",
-    "llama.cpp:Qwen/Qwen2.5-Coder-32B-Instruct-GGUF:q8_0",
-    # "llama.cpp:bartowski/functionary-small-v3.2-GGUF:Q4_K_M",
-    # "llama.cpp:bartowski/Phi-3.5-mini-instruct-GGUF:Q4_K_M",
+    # "llama.cpp:bartowski/c4ai-command-r7b-12-2024-GGUF:Q6_K_L",
+    # "llama.cpp:mav23/llama-3-firefunction-v2-GGUF:Q5_K_M",
+    # "llama.cpp:bartowski/Hermes-2-Pro-Llama-3-8B-GGUF",
+    # "llama.cpp:bartowski/Hermes-3-Llama-3.1-8B-GGUF",
+    # "llama.cpp:bartowski/functionary-small-v3.2-GGUF:Q8_0",
+    # "llama.cpp:bartowski/Llama-3.3-70B-Instruct-GGUF",
+    # "llama.cpp:bartowski/DeepSeek-R1-Distill-Qwen-7B-GGUF",
+    # "llama.cpp:bartowski/DeepSeek-R1-Distill-Qwen-32B-GGUF:Q6_K_L",
+    # "llama.cpp:Qwen/Qwen2.5-Coder-32B-Instruct-GGUF:q8_0",
+    # "llama.cpp:bartowski/functionary-small-v3.2-GGUF",
+    # "llama.cpp:bartowski/Phi-3.5-mini-instruct-GGUF",
     # "llama.cpp:unsloth/Mistral-Small-24B-Instruct-2501-GGUF:Q6_K",
-    # "llama.cpp:bartowski/phi-4-GGUF:Q4_K_M",
+    # "llama.cpp:bartowski/phi-4-GGUF",
     # "llama.cpp:bartowski/c4ai-command-r-v01-GGUF:Q2_K",
-    # "llama.cpp:bartowski/c4ai-command-r7b-12-2024-GGUF:Q4_K_M",
+    # "llama.cpp:bartowski/c4ai-command-r7b-12-2024-GGUF",
     # "llama.cpp:bartowski/DeepSeek-R1-Distill-Llama-70B-GGUF:Q6_K",
-    # "llama.cpp:bartowski/DeepSeek-R1-Distill-Llama-8B-GGUF:Q4_K_M",
+    # "llama.cpp:bartowski/DeepSeek-R1-Distill-Llama-8B-GGUF",
     # "llama.cpp:bartowski/DeepSeek-R1-Distill-Qwen-1.5B-GGUF:Q6_K_L",
-    # "llama.cpp:bartowski/gemma-2-2b-it-GGUF:Q4_K_M",
-    # "llama.cpp:bartowski/Llama-3.2-1B-Instruct-GGUF:Q4_K_M",
-    # "llama.cpp:bartowski/Llama-3.2-3B-Instruct-GGUF:Q4_K_M",
+    # "llama.cpp:bartowski/gemma-2-2b-it-GGUF",
     # "llama.cpp:bartowski/Llama-3.3-70B-Instruct-GGUF:IQ4_XS",
-    # "llama.cpp:bartowski/Meta-Llama-3.1-8B-Instruct-GGUF:Q4_K_M",
-    # "llama.cpp:bartowski/Qwen2.5.1-Coder-1.5B-Instruct-GGUF:Q4_K_M",
-    # "llama.cpp:bartowski/Qwen2.5.1-Coder-7B-Instruct-GGUF:Q4_K_M",
+    # "llama.cpp:bartowski/Qwen2.5.1-Coder-1.5B-Instruct-GGUF",
+    # "llama.cpp:bartowski/Qwen2.5.1-Coder-7B-Instruct-GGUF",
     # "llama.cpp:bartowski/Qwen2.5.1-Coder-7B-Instruct-GGUF:Q6_K_L",
-    # "llama.cpp:unsloth/DeepSeek-R1-Distill-Llama-8B-GGUF:Q4_K_M",
+    # "llama.cpp:unsloth/DeepSeek-R1-Distill-Llama-8B-GGUF",
     # "gpt-4",
     # "gpt-3.5",
     # "claude-2",
@@ -720,7 +733,7 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
         )
     elif model_name.startswith("llama.cpp:"):
         hf_repo_id = model_name[model_name.index(":")+1:]
-        llama_server_port = 8080
+        llama_server_port = 9080
         llama_server_base_url = f"http://localhost:{llama_server_port}"
         
         cmd = [
@@ -733,15 +746,13 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
             *(['--verbose'] if os.environ.get('DEBUG', '1') == 1 else []),
         ]
         print(f"Starting Llama server with command: {' '.join(cmd)}")
+        child_process = None
+        atexit.register(lambda: child_process.terminate() if child_process is not None else None)
         child_process = subprocess.Popen(
             cmd,
-            stdout=None, stderr=None,
-            # hide outputs
-            # stdout=subprocess.DEVNULL,
-            # stderr=subprocess.DEVNULL,
+            stdout=None if os.environ.get('DEBUG', '0') == '1' else subprocess.DEVNULL,
+            stderr=None if os.environ.get('DEBUG', '0') == '1' else subprocess.DEVNULL,
             shell=False)
-        import atexit
-        atexit.register(lambda: child_process.terminate())
         llm = ChatOpenAI(
             model_name=hf_repo_id,
             base_url=f"{llama_server_base_url}/v1",
@@ -769,7 +780,7 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
         llm = ChatOpenAI(
             model_name=model_id,
             base_url=f"{ollama_base_url}/v1",
-            # temperature=0,
+            temperature=0,
             model_kwargs={"seed": 42},
             # streaming=False,
         )
@@ -823,9 +834,9 @@ def generate_results(queries_path, model_name, tool_selection="all", num_retrys=
             agent=agent,
             tools=tools,
             return_intermediate_steps=True,
-            max_iterations=1,
-            # max_iterations=20,
-            # max_execution_time=120,
+            # max_iterations=1,
+            max_iterations=20,
+            max_execution_time=120,
             stream_runnable=False,
         )
         # agent.agent.llm_chain.prompt.messages[0].prompt.template = (
